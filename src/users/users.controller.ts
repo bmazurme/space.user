@@ -17,7 +17,7 @@ interface UsersService {
 }
 
 @Controller('user')
-export class UserController implements OnModuleInit {
+export class UsersController implements OnModuleInit {
   private readonly items: User[] = [
     { id: 1, email: 'e@e.com', name: 'uJohn123' },
     { id: 2, email: 'u@e.com', name: 'uDoe' },
