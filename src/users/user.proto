@@ -6,6 +6,7 @@ service UsersService {
   rpc FindOne (UserById) returns (User);
   rpc FindByEmail (UserByEmail) returns (User);
   rpc FindMany (stream UserById) returns (stream User);
+  rpc FindMe (UserById) returns (User);
 }
 
 message UserById {

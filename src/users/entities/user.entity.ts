@@ -3,7 +3,7 @@ import { Length, IsUrl, IsEmail } from 'class-validator';
 
 import { BaseEntity } from '../../base-entity';
 // import { Card } from '../../cards/entities/card.entity';
-// import { UserRole } from '../../user-roles/entities/user-role.entity';
+import { UserRole } from '../../user-roles/entities/user-role.entity';
 
 @Entity()
 export class User extends BaseEntity {
@@ -34,6 +34,6 @@ export class User extends BaseEntity {
   // @OneToMany(() => Card, (card) => card.user)
   // cards: Card[];
 
-  // @OneToMany(() => UserRole, (userRole) => userRole.id)
-  // public userRole: UserRole[];
+  @OneToMany(() => UserRole, (userRole) => userRole.id)
+  public userRole: UserRole[];
 }

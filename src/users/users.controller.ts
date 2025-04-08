@@ -1,80 +1,70 @@
-import { Controller, Get, Inject, OnModuleInit, Param } from '@nestjs/common';
 import {
-  ClientGrpc,
-  GrpcMethod,
-  GrpcStreamMethod,
-} from '@nestjs/microservices';
-import { Observable, ReplaySubject, Subject } from 'rxjs';
-import { toArray } from 'rxjs/operators';
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Inject,
+  OnModuleInit,
+  Param,
+  Patch,
+  Post,
+  Req,
+} from '@nestjs/common';
+import { ClientGrpc, GrpcMethod } from '@nestjs/microservices';
 
-import { UserByEmail, UserById } from './interfaces/user-by-id.interface';
-import { User } from './interfaces/user.interface';
+import { UsersService } from './users.service';
+import { User } from './entities/user.entity';
 
-interface UsersService {
-  findOne(data: UserById): Observable<User>;
-  findByEmail(data: UserByEmail): Observable<User>;
-  findMany(upstream: Observable<UserById>): Observable<User>;
-}
+import { CreateUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 
-@Controller('user')
+import { UserById } from './interfaces/user-by-id.interface';
+
+@Controller('users')
 export class UsersController implements OnModuleInit {
-  private readonly items: User[] = [
-    { id: 1, email: 'e@e.com', name: 'uJohn123' },
-    { id: 2, email: 'u@e.com', name: 'uDoe' },
-  ];
-  private usersService: UsersService;
-
-  constructor(@Inject('USER_PACKAGE') private readonly client: ClientGrpc) {}
+  // private usersService: UsersService;
+  // @Inject('USER_PACKAGE') private readonly client: ClientGrpc;
+  constructor(
+    private readonly usersService: UsersService,
+    @Inject('USER_PACKAGE') private readonly client: ClientGrpc,
+  ) {}
 
   onModuleInit() {
-    this.usersService = this.client.getService<UsersService>('UsersService');
-  }
-
-  @Get()
-  getMany(): Observable<User[]> {
-    const ids$ = new ReplaySubject<UserById>();
-    ids$.next({ id: 1 });
-    ids$.next({ id: 2 });
-    ids$.complete();
-
-    const stream = this.usersService.findMany(ids$.asObservable());
-    return stream.pipe(toArray());
+    // this.usersService = this.client.getService<UsersService>('UsersService');
   }
 
   @Get(':id')
-  getById(@Param('id') id: string): Observable<User> {
-    return this.usersService.findOne({ id: +id });
+  async findOneById(@Param('id') id: string): Promise<User> {
+    return await this.usersService.findOne(+id);
   }
 
-  @Get('email/:email')
-  getByEmail(@Param('email') email: string): Observable<User> {
-    return this.usersService.findByEmail({ email });
+  @GrpcMethod('UsersService', 'findOne')
+  findOne(data: UserById): Promise<User> {
+    return this.usersService.findOne(+data.id);
   }
 
-  @GrpcMethod('UsersService')
-  findByEmail(data: UserByEmail): User {
-    return this.items.find(({ email }) => email === data.email);
+  @Post()
+  create(@Body() createUserDto: CreateUserDto) {
+    return this.usersService.create(createUserDto);
   }
 
-  @GrpcMethod('UsersService')
-  findOne(data: UserById): User {
-    return this.items.find(({ id }) => id === data.id);
+  @Get()
+  findAll() {
+    return this.usersService.findAll();
   }
 
-  @GrpcStreamMethod('UsersService')
-  findMany(data$: Observable<UserById>): Observable<User> {
-    const user$ = new Subject<User>();
+  @Get('me')
+  async findMeById(@Req() req: { user: User }): Promise<User> {
+    return await this.usersService.findOne(+req.user.id);
+  }
 
-    const onNext = (userById: UserById) => {
-      const item = this.items.find(({ id }) => id === userById.id);
-      user$.next(item);
-    };
-    const onComplete = () => user$.complete();
-    data$.subscribe({
-      next: onNext,
-      complete: onComplete,
-    });
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    return this.usersService.update(+id, updateUserDto);
+  }
 
-    return user$.asObservable();
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.usersService.remove(+id);
   }
 }
