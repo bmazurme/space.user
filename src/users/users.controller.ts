@@ -19,6 +19,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 import { UserById } from './interfaces/user-by-id.interface';
+import { UserResponse } from './interfaces/user-response';
 
 @Controller('users')
 export class UsersController implements OnModuleInit {
@@ -34,13 +35,13 @@ export class UsersController implements OnModuleInit {
   }
 
   @Get(':id')
-  async findOneById(@Param('id') id: string): Promise<User> {
+  async findOneById(@Param('id') id: string): Promise<UserResponse> {
     return await this.usersService.findOne(+id);
   }
 
-  @GrpcMethod('UsersService', 'findOne')
-  findOne(data: UserById): Promise<User> {
-    return this.usersService.findOne(+data.id);
+  @GrpcMethod('UsersService')
+  async findOne(data: UserById): Promise<UserResponse> {
+    return await this.usersService.findOne(+data.id);
   }
 
   @Post()
@@ -54,7 +55,7 @@ export class UsersController implements OnModuleInit {
   }
 
   @Get('me')
-  async findMeById(@Req() req: { user: User }): Promise<User> {
+  async findMeById(@Req() req: { user: User }): Promise<UserResponse> {
     return await this.usersService.findOne(+req.user.id);
   }
 
