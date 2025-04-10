@@ -11,8 +11,6 @@ import { UpdateUserDto } from './dto/update-user.dto';
 
 import { User } from './entities/user.entity';
 
-import { UserResponse } from './interfaces/user-response';
-
 @Injectable()
 export class UsersService {
   constructor(
@@ -35,9 +33,7 @@ export class UsersService {
     return this.userRepository.find({});
   }
 
-  async findOne(id: number): Promise<UserResponse> {
-    const user = await this.userRepository.findOneBy({ id });
-
+  buildResponse(user: User) {
     if (!user) {
       return {
         user: null,
@@ -55,23 +51,14 @@ export class UsersService {
     };
   }
 
+  async findOne(id: number) {
+    const user = await this.userRepository.findOneBy({ id });
+    return this.buildResponse(user);
+  }
+
   async findByEmail(email: string) {
     const user = await this.userRepository.findOneBy({ email });
-    if (!user) {
-      return {
-        user: null,
-        message: 'user not found',
-        error: 'Not Found',
-        statusCode: 404,
-      };
-    }
-
-    return {
-      user,
-      message: 'ok',
-      error: null,
-      statusCode: 200,
-    } as UserResponse;
+    return this.buildResponse(user);
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
