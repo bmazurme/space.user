@@ -19,7 +19,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 
 import { UserById } from './interfaces/user-by-id.interface';
-import { UserResponse } from './interfaces/user-response';
+// import { UserResponse } from './interfaces/user-response';
 
 @Controller('users')
 export class UsersController implements OnModuleInit {
@@ -35,37 +35,37 @@ export class UsersController implements OnModuleInit {
   }
 
   @Get(':id')
-  async findOneById(@Param('id') id: string): Promise<UserResponse> {
+  async findOneById(@Param('id') id: string) {
     return await this.usersService.findOne(+id);
   }
 
   @GrpcMethod('UsersService')
-  async findOne(data: UserById): Promise<UserResponse> {
+  async findOne(data: UserById) {
     return await this.usersService.findOne(+data.id);
   }
 
   @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+  async create(@Body() createUserDto: CreateUserDto) {
+    return await this.usersService.create(createUserDto);
   }
 
   @Get()
-  findAll() {
-    return this.usersService.findAll();
+  async findAll() {
+    return await this.usersService.findAll();
   }
 
   @Get('me')
-  async findMeById(@Req() req: { user: User }): Promise<UserResponse> {
+  async findMeById(@Req() req: { user: User }) {
     return await this.usersService.findOne(+req.user.id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.usersService.update(+id, updateUserDto);
+  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    return await this.usersService.update(+id, updateUserDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  async remove(@Param('id') id: string) {
+    return await this.usersService.remove(+id);
   }
 }
