@@ -56,6 +56,7 @@ export class UsersController implements OnModuleInit {
 
   @Get('me')
   async findMeById(@Req() req: { user: User }) {
+    // console.log('=======', req);
     return await this.usersService.findOne(+req.user.id);
   }
 
