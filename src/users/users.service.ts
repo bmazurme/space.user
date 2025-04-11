@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  // NotFoundException,
-  BadRequestException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
@@ -23,14 +19,32 @@ export class UsersService {
     const existUsers = await this.findByEmail(email);
 
     if (existUsers) {
-      throw new BadRequestException(`user with${email} exist`);
+      return {
+        user: null,
+        message: `user with ${email} exist`,
+        error: 'Bad request',
+        statusCode: 400,
+      };
     }
 
-    return await this.userRepository.save(createUserDto);
+    const user = await this.userRepository.save(createUserDto);
+
+    return {
+      user,
+      message: 'ok',
+      error: null,
+      statusCode: 200,
+    };
   }
 
-  findAll() {
-    return this.userRepository.find({});
+  async findAll() {
+    const users = await this.userRepository.find({});
+    return {
+      users,
+      message: 'ok',
+      error: null,
+      statusCode: 200,
+    };
   }
 
   buildResponse(user: User) {
@@ -38,7 +52,7 @@ export class UsersService {
       return {
         user: null,
         message: 'user not found',
-        error: 'Not Found',
+        error: 'Not found',
         statusCode: 404,
       };
     }
