@@ -4,9 +4,8 @@ package user;
 
 service UsersService {
   rpc FindOne (UserById) returns (UserResponse);
-  rpc FindByEmail (UserByEmail) returns (User);
-  rpc FindMany (stream UserById) returns (stream User);
-  rpc FindMe (UserById) returns (User);
+  rpc FindByEmail (UserByEmail) returns (UserResponse);
+  rpc FindMe (UserById) returns (UserResponse);
 }
 
 message UserById {
@@ -29,5 +28,5 @@ message UserResponse {
   int32 statusCode = 1;
   string message = 2;
   string error = 3;
-  User user = 3;
+  User user = 4;
 }
